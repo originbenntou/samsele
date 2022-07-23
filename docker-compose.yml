@@ -1,0 +1,25 @@
+version: "3.3"
+
+services:
+  s3local:
+    container_name: s3local
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DEFAULT_REGION=ap-northeast-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DATA_DIR=/tmp/localstack/data
+    volumes:
+      - ./s3local:/docker-entrypoint-initaws.d
+      - ./s3local-data:/tmp/localstack/data
+    networks:
+      - s3_network
+
+volumes:
+  s3local-data:
+
+networks:
+  s3_network:
+

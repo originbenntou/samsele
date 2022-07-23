@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 300
+
+Resources:
+  SeleniumFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: selenium-function
+      CodeUri: function/
+      Handler: app.lambda_handler
+      Runtime: python3.6
+      Layers:
+        - !Ref SeleniumLayer
+
+  SeleniumLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: selenium-layer
+      ContentUri: layer/
