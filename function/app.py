@@ -412,6 +412,8 @@ def lambda_handler(_event, _context):
     # 住民票の写し
     driver.find_element_by_xpath("//input[@id='page:form:myRepeater:0:fileInput']").send_keys("")
     time.sleep(5)
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:0:j_id102']").click()
+    time.sleep(5)
 
     ##################################
     # スクリーンショット
