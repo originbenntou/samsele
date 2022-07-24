@@ -29,3 +29,7 @@ sam local invoke SeleniumFunction --docker-network samsele_s3_network
 ```
 docker cp {container_name}:/tmp/screen.png ./
 ```
+
+```
+aws s3 cp s3://samsele-bucket-local/screen.png ./ --endpoint-url=http://localhost:4566 --profile s3local
+```
