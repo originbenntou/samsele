@@ -120,8 +120,8 @@ def lambda_handler(_event, _context):
     # 代表地番_0
     driver.find_element_by_xpath("//input[@name='j_id0:form:j_id723:0:mainCityCheck']").click()
     # 郵便番号_0
-    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:0:pos1']").send_keys("") # FIXME
-    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:0:pos2']").send_keys("") # FIXME
+    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:0:pos1']").send_keys("100")
+    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:0:pos2']").send_keys("0000")
     # 住所反映_0
     driver.find_element_by_xpath("//input[@name='j_id0:form:j_id723:0:j_id731']").click()
     time.sleep(5)
@@ -129,15 +129,15 @@ def lambda_handler(_event, _context):
     driver.find_element_by_xpath("//input[@name='j_id0:form:j_id2281:j_id2282:j_id2300:0:j_id2302']").click()
     time.sleep(5)
     # 町名・番地_0
-    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:0:AddrDetailIn']").send_keys("サンプルハウス２－１０００") # FIXME
+    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:0:AddrDetailIn']").send_keys("サンプルハウス２－１０００")
 
     # 住所追加
     driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:0:j_id777']").click()
     time.sleep(5)
 
     # 郵便番号_1
-    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:1:pos1']").send_keys("") # FIXME
-    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:1:pos2']").send_keys("") # FIXME
+    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:1:pos1']").send_keys("100")
+    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:1:pos2']").send_keys("0001")
     # 住所反映_1
     driver.find_element_by_xpath("//input[@name='j_id0:form:j_id723:1:j_id731']").click()
     time.sleep(5)
@@ -145,7 +145,7 @@ def lambda_handler(_event, _context):
     driver.find_element_by_xpath("//input[@name='j_id0:form:j_id2281:j_id2282:j_id2300:0:j_id2302']").click()
     time.sleep(5)
     # 町名・番地_1
-    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:1:AddrDetailIn']").send_keys("サンプルハウス１－１－１") # FIXME
+    driver.find_element_by_xpath("//input[@id='j_id0:form:j_id723:1:AddrDetailIn']").send_keys("サンプルハウス１－１－１")
 
     # 事業区域の面積(㎡)
     driver.find_element_by_xpath("//input[@id='j_id0:form:OutlineArea']").send_keys("1000")
