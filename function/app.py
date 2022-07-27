@@ -24,7 +24,6 @@ CHROME_DRIVER_PATH = "/opt/bin/chromedriver"
 HEADLESS_CHROMIUM_PATH = "/opt/bin/headless-chromium"
 
 TARGET_URL = "https://www.fit-portal.go.jp/mypage/UserLogin"
-FILENAME = os.path.join("/tmp", "screen.png")
 
 # 日本語対応
 os.environ['HOME'] = '/opt/'
@@ -38,6 +37,13 @@ def lambda_handler(_event, _context):
     options.add_argument("--no-sandbox")
     options.add_argument("--single-process")
 
+    options.add_experimental_option("prefs", {
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled" : False,
+        "download.default_directory": "/tmp",
+        "plugins.always_open_pdf_externally": True,
+    })
+
     driver = webdriver.Chrome(
         executable_path = CHROME_DRIVER_PATH,
         chrome_options = options
@@ -49,6 +55,8 @@ def lambda_handler(_event, _context):
     # アクセス
     ##################################
     driver.get(TARGET_URL)
+    time.sleep(5)
+
     logger.info("Access OK")
 
     ##################################
@@ -57,20 +65,22 @@ def lambda_handler(_event, _context):
     driver.find_element_by_xpath("//input[@type='text']").send_keys("") # FIXME
     driver.find_element_by_xpath("//input[@type='password']").send_keys("") # FIXME
     driver.find_element_by_xpath("//input[@type='submit']").click()
+    time.sleep(5)
+
     logger.info("Login OK")
 
     ##################################
     # マイページ
     ##################################
-    time.sleep(5)
     # 申請開始
     driver.find_element_by_xpath("//*[@class='btn_cell']").find_element_by_tag_name("a").click()
+    time.sleep(5)
+
     logger.info("FIT申請 Start")
 
     ##################################
     # 設備区分選択
     ##################################
-    time.sleep(5)
     # 発電設備の区分
     Select(driver.find_element_by_xpath("//*[@name='j_id0:form:j_id80']")).select_by_value("太陽光")
 
@@ -85,12 +95,13 @@ def lambda_handler(_event, _context):
 
     # 情報入力ボタン
     driver.find_element_by_xpath("//*[@class='rollover']").click()
+    time.sleep(5)
+
     logger.info("区分 OK")
 
     ##################################
     # 情報入力
     ##################################
-    time.sleep(5)
     # 事業者自身が入力されていますか？
     Select(driver.find_element_by_xpath("//*[@id='j_id0:form:instPrincipal']")).select_by_value("本人")
 
@@ -115,7 +126,7 @@ def lambda_handler(_event, _context):
 
     # 発電設備の名称
     driver.find_element_by_xpath("//input[@id='j_id0:form:NmPowerplant']").send_keys("サンプルソーラー発電")
-    logger.info("事業者情報 OK")
+    logger.info("->事業者情報 OK")
 
     # 代表地番_0
     driver.find_element_by_xpath("//input[@name='j_id0:form:j_id723:0:mainCityCheck']").click()
@@ -181,7 +192,7 @@ def lambda_handler(_event, _context):
     driver.find_element_by_xpath("//input[@name='farmlandTempDiversion' and @value='無']").click()
     time.sleep(5)
 
-    logger.info("発電設備の設置場所に係る事項 OK")
+    logger.info("->発電設備の設置場所に係る事項 OK")
 
     # 太陽電池 型式リスト_0
     driver.find_element_by_xpath("//input[@name='j_id0:form:j_id936:0:srch']").click()
@@ -296,13 +307,13 @@ def lambda_handler(_event, _context):
     driver.find_element_by_xpath("//input[@id='j_id0:form:specifiedSupply:1']").click()
     time.sleep(5)
 
-    logger.info("太陽電池に係る事項 OK")
+    logger.info("->太陽電池に係る事項 OK")
 
     # 解体等に要する費用
     driver.find_element_by_xpath("//input[@name='j_id0:form:externalReserveChk']").click()
     time.sleep(5)
 
-    logger.info("廃棄費用積立事項 OK")
+    logger.info("->廃棄費用積立事項 OK")
 
     # 遵守事項
     driver.find_element_by_xpath("//input[@name='j_id0:form:bchk1']").click()
@@ -317,7 +328,7 @@ def lambda_handler(_event, _context):
     driver.find_element_by_xpath("//input[@name='j_id0:form:bchkB']").click()
     driver.find_element_by_xpath("//input[@name='j_id0:form:bchk7']").click()
 
-    logger.info("遵守事項 OK")
+    logger.info("->遵守事項 OK")
 
     # 確認事項
     driver.find_element_by_xpath("//input[@name='j_id0:form:chk2']").click()
@@ -327,7 +338,7 @@ def lambda_handler(_event, _context):
     driver.find_element_by_xpath("//input[@name='j_id0:form:chk1']").click()
     driver.find_element_by_xpath("//input[@name='j_id0:form:chk4']").click()
 
-    logger.info("確認事項 OK")
+    logger.info("->確認事項 OK")
 
     # 内容確認
     driver.find_element_by_xpath("//input[@name='j_id0:form:j_id2272']").click()
@@ -337,7 +348,7 @@ def lambda_handler(_event, _context):
     driver.find_element_by_xpath("//input[@name='j_id0:form:j_id676']").click()
     time.sleep(5)
 
-    logger.info("内容確認 OK")
+    logger.info("->内容確認 OK")
 
     ##################################
     # 関係法令
@@ -404,26 +415,76 @@ def lambda_handler(_event, _context):
     driver.find_element_by_xpath("//input[@name='page:form:j_id255']").click()
     time.sleep(5)
 
-    logger.info("関係法令 OK")
+    logger.info("->関係法令 OK")
 
     ##################################
-    # 書類添付
+    # 書類添付（必須のみ）
     ##################################
     # 住民票の写し
-    driver.find_element_by_xpath("//input[@id='page:form:myRepeater:0:fileInput']").send_keys("")
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:0:fileInput:inputFile:file']").send_keys("/opt/files/dummy.pdf")
     time.sleep(5)
     driver.find_element_by_xpath("//input[@name='page:form:myRepeater:0:j_id102']").click()
     time.sleep(5)
 
-    ##################################
-    # スクリーンショット
-    ##################################
-    driver.set_window_size(
-        driver.execute_script("return document.body.scrollWidth;"),
-        driver.execute_script("return document.body.scrollHeight;")
+    # 不動産登記簿謄本
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:2:fileInput:inputFile:file']").send_keys("/opt/files/dummy.pdf")
+    time.sleep(5)
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:2:j_id102']").click()
+    time.sleep(5)
+
+    # 土地の取得を証する書類等（地上設置の場合のみ）
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:3:fileInput:inputFile:file']").send_keys("/opt/files/dummy.pdf")
+    time.sleep(5)
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:3:j_id102']").click()
+    time.sleep(5)
+
+    # 発電設備の内容を証する書類
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:5:fileInput:inputFile:file']").send_keys("/opt/files/dummy.pdf")
+    time.sleep(5)
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:5:j_id102']").click()
+    time.sleep(5)
+
+    # 接続の同意を証する書類の写し
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:8:fileInput:inputFile:file']").send_keys("/opt/files/dummy.pdf")
+    time.sleep(5)
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:8:j_id102']").click()
+    time.sleep(5)
+
+    # 柵塀の誓約書
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:17:fileInput:inputFile:file']").send_keys("/opt/files/dummy.pdf")
+    time.sleep(5)
+    driver.find_element_by_xpath("//input[@name='page:form:myRepeater:17:j_id102']").click()
+    time.sleep(5)
+
+    # 申請書出力
+    driver.find_element_by_xpath("//input[@name='page:form:j_id111']").click()
+    time.sleep(10)
+
+    driver.find_element_by_xpath("//input[@name='page:form:j_id126:j_id127:j_id134']").click()
+    time.sleep(5)
+
+    # 申請書DL
+    driver.switch_to.window(driver.window_handles[-1])
+    driver.command_executor._commands["send_command"] = (
+        "POST",
+        '/session/$sessionId/chromium/send_command'
     )
-    driver.save_screenshot(FILENAME)
-    logger.info("ScreenShot OK")
+    params = {
+        'cmd': 'Page.setDownloadBehavior',
+        'params': {
+            'behavior': 'allow',
+            'downloadPath': '/tmp'
+        }
+    }
+    driver.execute("send_command", params=params)
+    driver.get(driver.find_element_by_xpath("//a[@id='download_link']").get_attribute("href"))
+
+    # driver.find_element_by_xpath("//a[@id='download_link']").click()
+    # time.sleep(5)
+
+    snap_screen(driver, "screen_3.png")
+
+    logger.info("書類添付 OK")
 
     driver.close()
     driver.quit()
@@ -441,10 +502,20 @@ def lambda_handler(_event, _context):
         }),
     }
 
+def snap_screen(driver, name):
+    driver.set_window_size(
+        driver.execute_script("return document.body.scrollWidth;"),
+        driver.execute_script("return document.body.scrollHeight;")
+    )
+    driver.save_screenshot(os.path.join("/tmp", name))
+    logger.info(f"ScreenShot {name} OK")
+    time.sleep(5)
+
+
 def upload_s3_result(bucket_name):
     bucket = s3.Bucket(bucket_name)
     bucket.upload_file(
-        "/tmp/screen.png",
-        "screen.png",
+        "/tmp/screen_3.png",
+        "screen_3.png",
         ExtraArgs={"ContentType": "image/png"}
     )
